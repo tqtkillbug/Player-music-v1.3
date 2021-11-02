@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
+import org.apache.commons.io.FileUtils;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
@@ -87,11 +88,14 @@ public class PlayerController implements Initializable {
     private boolean playbtnstatus;
     private boolean randombtnstatus;
     private boolean loopbtnstatus;
+    private String sourcePathMusic = "music";
+    private final File playlistDirectory = new File("playlist");
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         songs = new ArrayList<>();
-        musicDirectory = new File("music");
+        musicDirectory = new File(sourcePathMusic);
         musicFiles = musicDirectory.listFiles();
         images = new ArrayList<>();
         imageDirectory = new File("image");
@@ -104,7 +108,7 @@ public class PlayerController implements Initializable {
         playlistNameColum.setCellValueFactory(new PropertyValueFactory<Playlist, String>("name"));
         playlistTable.setItems(playlistList);
         namePlaylist.setPromptText("Enter Name Playlist Want Creat");
-
+        showPlaylistName();
         if (musicFiles != null) {
             for (File file : musicFiles) {
                 songs.add(file);
@@ -145,10 +149,10 @@ public class PlayerController implements Initializable {
         }
     }
     public void addSongToTbView() throws TikaException, IOException, SAXException {
-        for (int i = 0; i < songs.size() -1; i++) {
+        for (int i = 0; i < songs.size()-1; i++) {
             String songName = getTitleSong(i);
             Song newSong = new Song();
-            newSong.setId(i);
+            newSong.setId(i+1);
             newSong.setSongName(songName);
             songList.add(newSong);
         }
@@ -191,18 +195,16 @@ public class PlayerController implements Initializable {
         mediaPlayer = new MediaPlayer(media);
         getSongInfo(songNumber);
         setLogoSong();
-
     }
 
     public String getRelativeName() {
         String songNamePath = getSongTitle();
         String relativeSongName = songNamePath.substring(0, songNamePath.length() - 4);
         return relativeSongName + ".jpg";
-
     }
 
     public void setLogoSong() throws MalformedURLException {
-        File file = new File("C:\\Users\\TienTran_LAPTOP\\IdeaProjects\\Player-music-v1.1\\src\\main\\resources\\vn\\tqt\\player\\music\\image\\" + getRelativeName());
+        File file = new File("src/main/resources/vn/tqt/player/music/image/" + getRelativeName());
         String localUrl = file.toURI().toURL().toString();
         Image image = new Image(localUrl);
         logoSong.setImage(image);
@@ -369,8 +371,8 @@ public class PlayerController implements Initializable {
      }
      public void createPlaylist() throws Exception {
          String forderPlaylistName  = namePlaylist.getText();
-         String sourcePath = "E:\\Clone Music Player\\Player_musicV1.1\\playlist\\";
-         File file = new File(sourcePath + forderPlaylistName);
+         String sourcePath = playlistDirectory.getPath();
+         File file = new File(sourcePath +"\\"+ forderPlaylistName);
          Playlist newPlaylist = new Playlist();
          newPlaylist.setName(forderPlaylistName);
          playlistList.add(newPlaylist);
@@ -380,4 +382,46 @@ public class PlayerController implements Initializable {
              throw new Exception("Error creat file");
          }
      }
+     public void showPlaylistName(){
+         String[] directories = playlistDirectory.list(new FilenameFilter() {
+             @Override
+             public boolean accept(File current, String name) {
+                 return new File(current, name).isDirectory();
+             }
+         });
+         for (String namePlayList: directories) {
+             Playlist newPlaylist = new Playlist();
+             newPlaylist.setName(namePlayList);
+             playlistList.add(newPlaylist);
+         }
+     }
+
+    public void playThisList() throws MalformedURLException {
+           Playlist selected = (Playlist) playlistTable.getSelectionModel().getSelectedItem();
+           sourcePathMusic = playlistDirectory.getPath()+"/"+ selected.getName();
+           initialize(null, null);
+           mediaPlayer.stop();
+           playSong();
+        }
+    public static void copyMusicToPlayList(){
+        File source = new File("music");
+        File dest = new File("playlist");
+        try {
+            FileUtils.copyDirectory(source, dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+// Copy OK, cap nhat lai thu vien comon io len ban moi, hoan thien chuc nang add to playlist
+    public static void main(String[] args) {
+        File source = new File("music/cuoiluonduockhong.mp3");
+        File dest = new File("playlist/nhacdamcuoi");
+        try {
+            FileUtils.copyFileToDirectory(source,dest);
+            System.out.println("CopyXong");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

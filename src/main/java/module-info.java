@@ -14,6 +14,7 @@ module com.example.demo {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
     requires com.fasterxml.jackson.annotation;
+    requires commons.io;
     opens vn.tqt.player.music to javafx.fxml,com.fasterxml.jackson.core,com.fasterxml.jackson.databind,com.fasterxml.jackson.annotation;
     exports vn.tqt.player.music;
     exports vn.tqt.player.music.repository;
