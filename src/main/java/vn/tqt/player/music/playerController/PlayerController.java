@@ -206,6 +206,8 @@ public class PlayerController implements Initializable {
     }
 
     public void showPlaylistOnComBox() {
+        playlistBox.getItems().clear();
+        playlistBox.setPromptText("Select PlayList");
         for (int j = 0; j < playlistList.size(); j++) {
             playlistBox.getItems().add(playlistList.get(j).getName());
         }
@@ -439,9 +441,7 @@ public class PlayerController implements Initializable {
             throw new Exception("Error creat file");
         }
     }
-// Fix loi in chong len combob.........
     public void showPlaylistName() {
-         playlistList.removeAll();
         String[] directories = playlistDirectory.list(new FilenameFilter() {
             @Override
             public boolean accept(File current, String name) {
