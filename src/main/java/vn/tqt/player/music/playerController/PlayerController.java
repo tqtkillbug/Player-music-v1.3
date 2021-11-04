@@ -12,11 +12,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
-import org.apache.commons.io.FileUtils;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
@@ -35,6 +33,8 @@ import vn.tqt.player.music.repository.Playlist;
 import vn.tqt.player.music.repository.Song;
 import vn.tqt.player.music.services.CopyFile;
 import vn.tqt.player.music.initWindow.InitAlertWindow;
+import vn.tqt.player.music.services.DeleteFolder;
+import vn.tqt.player.music.services.GetTitleSong;
 
 public class PlayerController implements Initializable {
 
@@ -75,12 +75,18 @@ public class PlayerController implements Initializable {
     @FXML
     private File allMusicDirectory;
     @FXML
+    private File allMusicInPlaylist;
+    @FXML
     private File imageDirectory;
     private File[] musicFiles;
     private File[] allMusicFiles;
+    private File[] allMusicFilesInPlayList;
+
     private File[] imageFiles;
     private ArrayList<File> songs;
     private ArrayList<File> allSong;
+    private ArrayList<File> songInPlaylist;
+    private ArrayList<File> allSongInPlaylist;
     private ArrayList<File> images;
     private int songNumber;
     private int[] speeds = {75, 100, 125, 150, 175, 500000};
@@ -177,11 +183,10 @@ public class PlayerController implements Initializable {
         if (allMusicFiles != null) {
             for (File file : allMusicFiles) {
                 allSong.add(file);
-                System.out.println(file);
             }
         }
         for (int i = 0; i < allSong.size(); i++) {
-            String songName = getTitleSong(i, allSong);
+            String songName = GetTitleSong.get(i, allSong);
             Song newSong = new Song();
             newSong.setId(i + 1);
             newSong.setSongName(songName);
@@ -193,7 +198,7 @@ public class PlayerController implements Initializable {
 
     public void addSongToTbView() throws TikaException, IOException, SAXException {
         for (int i = 0; i < songs.size(); i++) {
-            String songName = getTitleSong(i, songs);
+            String songName = GetTitleSong.get(i, songs);
             Song newSong = new Song();
             newSong.setId(i + 1);
             newSong.setSongName(songName);
@@ -231,24 +236,7 @@ public class PlayerController implements Initializable {
         }
     }
 
-    public String getTitleSong(int indexSong, ArrayList<File> list) {
-        String titleSong;
-        try {
-            String fileLocation = list.get(indexSong).toPath().toString();
-            InputStream input = new FileInputStream(fileLocation);
-            ContentHandler handler = new DefaultHandler();
-            Metadata metadata = new Metadata();
-            Parser parser = new Mp3Parser();
-            ParseContext parseCtx = new ParseContext();
-            parser.parse(input, handler, metadata, parseCtx);
-            input.close();
-            titleSong = metadata.get("title");
-        } catch (Exception e) {
-            e.printStackTrace();
-            titleSong = " !Error Song";
-        }
-        return titleSong;
-    }
+
 
 
     public void initMedia(int songIndex) throws TikaException, IOException, SAXException {
@@ -299,12 +287,29 @@ public class PlayerController implements Initializable {
                 mediaPlayer.stop();
                 initMedia(songNumber);
                 playSong();
+                System.out.println(songs.size());
+                System.out.println(songNumber);
             } else {
                 songNumber++;
                 mediaPlayer.stop();
                 initMedia(songNumber);
+                playSong();
             }
-
+        } else {
+            if (playBtnStatus) {
+                playBtnStatus = false;
+                songNumber = 0;
+                mediaPlayer.stop();
+                initMedia(songNumber);
+                playSong();
+                System.out.println(songs.size());
+                System.out.println(songNumber);
+            } else {
+                songNumber = 0;
+                mediaPlayer.stop();
+                initMedia(songNumber);
+                playSong();
+            }
         }
     }
 
@@ -425,7 +430,7 @@ public class PlayerController implements Initializable {
 
     public boolean checkDuplicatePlaylist(String folderPlaylistName) {
         for (Playlist playlist : playlistList) {
-            if (playlist.getName().equals(folderPlaylistName)) {
+            if (playlist.getName().trim().equals(folderPlaylistName.trim())) {
                 return false;
             }
         }
@@ -449,9 +454,10 @@ public class PlayerController implements Initializable {
             if (!bool) {
                 throw new Exception("Error creat file");
             }
+        } else {
+            namePlaylist.setText("");
+            InitAlertWindow.initAlert(titleAlert,contentAlert);
         }
-        namePlaylist.setText("");
-        InitAlertWindow.initAlert(titleAlert,contentAlert);
     }
 
     public void showPlaylistName() {
@@ -468,23 +474,69 @@ public class PlayerController implements Initializable {
     }
 
     public void playThisList(){
-        mediaPlayer.stop();
-        sourcePathMusic = playlistDirectory.getPath() + "/" + playlistBox.getValue();
-        initialize(null, null);
-        playSong();
+        String playlistBoxValue = playlistBox.getValue();
+        if (!checkQuantytiSongInPlayList(playlistBoxValue)){
+            mediaPlayer.pause();
+            sourcePathMusic = playlistDirectory.getPath() + "/" + playlistBox.getValue();
+            initialize(null, null);
+            playSong();
+            playlistBox.setValue(playlistBoxValue);
+        } else {
+            String titleAlert = "Player Warring!!";
+            String contentAlert = "The playlist is empty, please add music to the playlist to play music!";
+            InitAlertWindow.initAlert(titleAlert,contentAlert);
+        }
     }
 
     public void addToPlayList() {
         Song selected = table.getSelectionModel().getSelectedItem();
         String songPath = selected.getSongPath();
         String playlistName = playlistBox.getValue();
-        CopyFile.copyMusicToDirectory(songPath, playlistName);
-        String titleAlert = "ADD Song To Playlist";
-        String contentAlert = "Add Song \"" + selected.getSongName() + "\" to Playlist \"" + playlistName + "\"";
-        InitAlertWindow.initAlert(titleAlert,contentAlert);
+        if(checkSongInPlaylist(playlistName,selected.getSongName())){
+            CopyFile.copyMusicToDirectory(songPath, playlistName);
+            String titleAlert = "ADD Song To Playlist";
+            String contentAlert = "Add Song \"" + selected.getSongName() + "\" to Playlist \"" + playlistName + "\"" + "DONE";
+            InitAlertWindow.initAlert(titleAlert,contentAlert);
+        } else {
+            String titleAlert2 = "Player Alerrt!";
+            String contentAlert2 = selected.getSongName() +  " already exists in, cannot be added";
+            InitAlertWindow.initAlert(titleAlert2,contentAlert2);
+        }
     }
-// Kiem PlayList có nhạc chưa, nếu chưa thì k play được
-    //Thêm xóa playlist
+    public boolean checkQuantytiSongInPlayList(String playlistName) {
+        songInPlaylist = new ArrayList<>();
+        allMusicInPlaylist = new File("playlist/" + playlistName);
+        allMusicFilesInPlayList = allMusicInPlaylist.listFiles();
+        if (allMusicFilesInPlayList.length == 0) {
+            return true;
+        }
+        return false;
+    }
+  public boolean checkSongInPlaylist(String playlistName, String nameMusic){
+      songInPlaylist = new ArrayList<>();
+      allMusicInPlaylist = new File("playlist/" + playlistName);
+      allMusicFilesInPlayList = allMusicInPlaylist.listFiles();
+      if (allMusicFilesInPlayList != null) {
+          for (File file : allMusicFilesInPlayList) {
+              songInPlaylist.add(file);
+          }
+      }
+      for (int i = 0; i < songInPlaylist.size(); i++) {
+          String songName = GetTitleSong.get(i,songInPlaylist);
+          if (songName.equals(nameMusic)) {
+              return false;
+          }
+      }
+     return true;
+  }
+
+    public void deletePlaylist() {
+       String playlistPath = "playlist/" +  playlistBox.getValue();
+       DeleteFolder.delete(playlistPath);
+       initialize(null, null);
+    }
+
+
+    // xóa playlist
     // xóa nhạc trong playlists
-    // Kiểm tra bài hát đã có trong playlist chưa, nếu chưa k cho thêm
 }
