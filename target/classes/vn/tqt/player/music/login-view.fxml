@@ -9,11 +9,13 @@
 <AnchorPane prefHeight="164.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.LoginView">
    <children>
       <TextField fx:id="loginKeyField" layoutX="67.0" layoutY="65.0" prefHeight="32.0" prefWidth="343.0" />
-      <Label layoutX="131.0" prefHeight="56.0" prefWidth="252.0" text="Quang Tien">
+      <Label layoutX="131.0" prefHeight="56.0" prefWidth="252.0" text="Welcome To TQTPlayer">
          <font>
-            <Font size="40.0" />
+            <Font size="21.0" />
          </font>
       </Label>
-      <Button layoutX="213.0" layoutY="125.0" mnemonicParsing="false" onAction="#showHomePage" text="show homepage" />
+      <Button layoutX="211.0" layoutY="104.0" mnemonicParsing="false" onAction="#login" text="LOGIN " />
+      <Button layoutX="344.0" layoutY="105.0" mnemonicParsing="false" onAction="#sendKeyToEmail" prefHeight="25.0" prefWidth="66.0" text="Send Key" />
+      <Button layoutX="60.0" layoutY="118.0" mnemonicParsing="false" onAction="#showHomePage" text="SHOW" />
    </children>
 </AnchorPane>
