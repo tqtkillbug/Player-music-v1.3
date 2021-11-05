@@ -17,6 +17,7 @@ module com.example.demo {
     requires org.apache.commons.io;
     requires commons.lang3;
     requires javax.mail;
+    requires json.simple;
     opens vn.tqt.player.music to javafx.fxml,com.fasterxml.jackson.core,com.fasterxml.jackson.databind,com.fasterxml.jackson.annotation;
     exports vn.tqt.player.music;
     exports vn.tqt.player.music.repository;
@@ -25,4 +26,6 @@ module com.example.demo {
     opens vn.tqt.player.music.services to com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, javafx.fxml;
     exports vn.tqt.player.music.playerController;
     opens vn.tqt.player.music.playerController to com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, javafx.fxml;
+    exports vn.tqt.player.music.services.jsonFile;
+    opens vn.tqt.player.music.services.jsonFile to com.fasterxml.jackson.annotation, com.fasterxml.jackson.core, com.fasterxml.jackson.databind, javafx.fxml;
 }
