@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="pane" depthTest="DISABLE" prefHeight="442.0" prefWidth="749.0" style="-fx-background-color: #004953;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.playerController.PlayerController">
+<AnchorPane fx:id="pane" depthTest="DISABLE" prefHeight="442.0" prefWidth="749.0" style="-fx-background-color: #004953;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.controller.PlayerController">
     <children>
         <Label fx:id="songName" layoutX="318.0" layoutY="273.0" prefHeight="17.0" prefWidth="297.0" text="Songname" textFill="WHITE">
             <font>

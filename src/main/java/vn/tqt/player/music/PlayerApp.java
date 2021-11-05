@@ -14,7 +14,7 @@ public class PlayerApp extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(PlayerApp.class.getResource("login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 460, 170);
-        stage.setTitle("Hello!");
+        stage.setTitle("Login!");
         stage.setScene(scene);
         stage.show();
     }

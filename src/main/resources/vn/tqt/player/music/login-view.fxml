@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="165.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.LoginView">
+<AnchorPane prefHeight="165.0" prefWidth="477.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.controller.LoginController">
    <children>
       <TextField fx:id="loginKeyField" layoutX="67.0" layoutY="72.0" prefHeight="32.0" prefWidth="343.0">
          <font>
