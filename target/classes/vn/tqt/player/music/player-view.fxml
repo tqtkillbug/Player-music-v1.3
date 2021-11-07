@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="pane" depthTest="DISABLE" prefHeight="442.0" prefWidth="749.0" style="-fx-background-color: #004953;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.playerController.PlayerController">
+<AnchorPane fx:id="pane" depthTest="DISABLE" prefHeight="442.0" prefWidth="749.0" style="-fx-background-color: #004953;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vn.tqt.player.music.controller.PlayerController">
     <children>
         <Label fx:id="songName" layoutX="318.0" layoutY="273.0" prefHeight="17.0" prefWidth="297.0" text="Songname" textFill="WHITE">
             <font>
@@ -53,6 +53,9 @@
       <ComboBox fx:id="playlistBox" layoutX="14.0" layoutY="46.0" prefHeight="25.0" prefWidth="168.0" promptText="Select Play List" />
       <Button fx:id="showAllSongbtn" layoutX="69.0" layoutY="384.0" mnemonicParsing="false" onAction="#showAllSong" prefHeight="25.0" prefWidth="105.0" text="Show All Song" />
       <Button layoutX="238.0" layoutY="14.0" mnemonicParsing="false" onAction="#deletePlaylist" prefHeight="25.0" prefWidth="38.0" text="X" />
+      <Button fx:id="chooseFolderbtn" layoutX="628.0" layoutY="46.0" mnemonicParsing="false" onAction="#chooseFolder" text="Choose Folder" />
+      <Button layoutX="677.0" layoutY="8.0" mnemonicParsing="false" onAction="#logOut" text="LogOut" />
+      <Slider fx:id="songTimeSlider" layoutX="322.0" layoutY="402.0" prefHeight="14.0" prefWidth="297.0" />
     </children>
    <opaqueInsets>
       <Insets />

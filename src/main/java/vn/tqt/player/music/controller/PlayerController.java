@@ -7,13 +7,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.xml.sax.ContentHandler;
@@ -29,6 +37,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.xml.sax.SAXException;
+import vn.tqt.player.music.PlayerApp;
 import vn.tqt.player.music.repository.Playlist;
 import vn.tqt.player.music.repository.Song;
 import vn.tqt.player.music.services.CopyFile;
@@ -37,7 +46,10 @@ import vn.tqt.player.music.services.DeleteFolder;
 import vn.tqt.player.music.services.GetTitleSong;
 
 public class PlayerController implements Initializable {
-
+    @FXML
+    private  Slider songTimeSlider;
+    @FXML
+    private AnchorPane pane;
     @FXML
     private TextField namePlaylist;
     @FXML
@@ -165,7 +177,14 @@ public class PlayerController implements Initializable {
             }
         });
     }
-
+    public void rewindMusic() {
+        songTimeSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                mediaPlayer.seek(new Duration(songTimeSlider.getValue()));
+            }
+        });
+    }
     public void initTableviewSong() {
         songList = FXCollections.observableArrayList();
         idColumn.setCellValueFactory(new PropertyValueFactory<Song, Integer>("id"));
@@ -272,12 +291,17 @@ public class PlayerController implements Initializable {
         } else {
             mediaPlayer.play();
             getSongInfo(songNumber);
+            resetVolumeAndSpeed();
             beginTimer();
             playBtnStatus = true;
             playButton.setText("Pause");
         }
     }
 
+public void resetVolumeAndSpeed(){
+    volumeBar.setValue(75);
+    speedBox.setValue("100");
+}
 
     public void nextSong() throws IOException, TikaException, SAXException {
         if (songNumber < songs.size() - 1) {
@@ -287,8 +311,6 @@ public class PlayerController implements Initializable {
                 mediaPlayer.stop();
                 initMedia(songNumber);
                 playSong();
-                System.out.println(songs.size());
-                System.out.println(songNumber);
             } else {
                 songNumber++;
                 mediaPlayer.stop();
@@ -395,11 +417,14 @@ public class PlayerController implements Initializable {
                     public void run() {
                         double current = mediaPlayer.getCurrentTime().toSeconds();
                         double end = media.getDuration().toSeconds();
+                        double percenttime = (current /  end) * 100;
                         int second = (int) current % 60;
                         int minute = (int) (current / 60) % 60;
                         String minutes = String.valueOf(minute);
                         String seconds = String.valueOf(second);
                         songTime.setText(minutes + ":" + seconds);
+                        songTimeSlider.setValue(percenttime);
+                        mediaPlayer.seek(new Duration(songTimeSlider.getValue()));
                         songProgressBar.setProgress(current / end);
                         if (current / end == 1) {
                             if (randomBtnStatus) {
@@ -536,6 +561,25 @@ public class PlayerController implements Initializable {
        initialize(null, null);
     }
 
-    // xóa playlist
+    public void chooseFolder() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        Stage stage = (Stage) pane.getScene().getWindow();
+        File selectedDirectory = directoryChooser.showDialog(stage);
+        sourcePathMusic = selectedDirectory.getPath();
+        mediaPlayer.stop();
+        initialize(null, null);
+    }
+
+    public void logOut(ActionEvent event) throws IOException {
+        mediaPlayer.stop();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(PlayerApp.class.getResource("login-view.fxml"));
+        Parent parent = fxmlLoader.load();
+        Scene scene = new Scene(parent);
+        stage.setScene(scene);
+        stage.show();
+    }
+
     // xóa nhạc trong playlists
 }

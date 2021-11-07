@@ -46,8 +46,8 @@ public class LoginController implements Initializable {
     }
 
     public void login(ActionEvent event) throws IOException {
-        String inputKey = loginKeyField.getText();
-        if (checkKey(inputKey)){
+        String input = loginKeyField.getText();
+        if (checkKey(input) || checkEmail(input)){
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(PlayerApp.class.getResource("player-view.fxml"));
@@ -71,17 +71,20 @@ public class LoginController implements Initializable {
             String contentAlert = "Email already exists on the system. Please enter your key";
             InitAlertWindow.initAlert(titleAlert, contentAlert);
         } else{
-            SendKeyToMail.send(email,key);
-            KeyData newKey = new KeyData(key,email);
-            listKeyAndMail.add(newKey);
-            String jsonString = JacksonParser.INSTANCE.toJson(listKeyAndMail);
-            WriteJson.setJsonFile(jsonString);
-            String titleAlert = "Login Alert";
-            String contentAlert = "Please check your email and get your key";
-            InitAlertWindow.initAlert(titleAlert, contentAlert);
+            while (checkKey(key)){
+                key = RandomKeyGenerated.randomString();
+            }
+                SendKeyToMail.send(email,key);
+                KeyData newKey = new KeyData(key,email);
+                listKeyAndMail.add(newKey);
+                String jsonString = JacksonParser.INSTANCE.toJson(listKeyAndMail);
+                WriteJson.setJsonFile(jsonString);
+                String titleAlert = "Login Alert";
+                String contentAlert = "Please check your email and get your key";
+                InitAlertWindow.initAlert(titleAlert, contentAlert);
+            }
         }
 
-     }
 
     public void showHome(ActionEvent event) throws IOException {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -89,7 +92,6 @@ public class LoginController implements Initializable {
         fxmlLoader.setLocation(PlayerApp.class.getResource("player-view.fxml"));
         Parent parent = fxmlLoader.load();
         Scene scene = new Scene(parent);
-        stage.setTitle("TQT Player!");
         stage.setScene(scene);
         stage.show();
     }

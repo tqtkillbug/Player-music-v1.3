@@ -1,10 +1,10 @@
 package vn.tqt.player.music.repository;
 
-import java.util.ArrayList;
 
 public class Playlist {
     private String name;
     private String path;
+
     public Playlist(){
 
     }
