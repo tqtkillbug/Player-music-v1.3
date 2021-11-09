@@ -177,14 +177,7 @@ public class PlayerController implements Initializable {
             }
         });
     }
-    public void rewindMusic() {
-        songTimeSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                mediaPlayer.seek(new Duration(songTimeSlider.getValue()));
-            }
-        });
-    }
+
     public void initTableviewSong() {
         songList = FXCollections.observableArrayList();
         idColumn.setCellValueFactory(new PropertyValueFactory<Song, Integer>("id"));
@@ -254,9 +247,6 @@ public class PlayerController implements Initializable {
             e.printStackTrace();
         }
     }
-
-
-
 
     public void initMedia(int songIndex) throws TikaException, IOException, SAXException {
         media = new Media(songs.get(songIndex).toURI().toString());
@@ -423,8 +413,6 @@ public void resetVolumeAndSpeed(){
                         String minutes = String.valueOf(minute);
                         String seconds = String.valueOf(second);
                         songTime.setText(minutes + ":" + seconds);
-                        songTimeSlider.setValue(percenttime);
-                        mediaPlayer.seek(new Duration(songTimeSlider.getValue()));
                         songProgressBar.setProgress(current / end);
                         if (current / end == 1) {
                             if (randomBtnStatus) {
@@ -580,6 +568,4 @@ public void resetVolumeAndSpeed(){
         stage.setScene(scene);
         stage.show();
     }
-
-    // xóa nhạc trong playlists
 }

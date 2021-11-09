@@ -19,6 +19,7 @@ import vn.tqt.player.music.services.loginservice.RandomKeyGenerated;
 import vn.tqt.player.music.services.loginservice.SendKeyToMail;
 import vn.tqt.player.music.services.jsonFile.Read;
 import vn.tqt.player.music.services.jsonFile.WriteJson;
+import vn.tqt.player.music.services.loginservice.VadidateEmail;
 
 import javax.mail.MessagingException;
 import java.io.*;
@@ -32,7 +33,7 @@ public class LoginController implements Initializable {
     private Label alertText;
     @FXML
     private TextField loginKeyField;
-    public List<KeyData> listKeyAndMail  = new ArrayList<>();
+    public List<KeyData> listKeyAndMail = new ArrayList<>();
 
 
     @Override
@@ -47,7 +48,7 @@ public class LoginController implements Initializable {
 
     public void login(ActionEvent event) throws IOException {
         String input = loginKeyField.getText();
-        if (checkKey(input) || checkEmail(input)){
+        if (checkKey(input) || checkEmail(input)) {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(PlayerApp.class.getResource("player-view.fxml"));
@@ -59,23 +60,25 @@ public class LoginController implements Initializable {
             String titleAlert = "Login Fail";
             String contentAlert = "Key incorrect please re-enter or enter email to receive Key";
             InitAlertWindow.initAlert(titleAlert, contentAlert);
-            alertText.setText("Key does not exist,Please enter your email to receive Key" );
+            alertText.setText("Key does not exist,Please enter your email to receive Key");
         }
     }
 
     public void sendKeyToEmail(ActionEvent event) throws MessagingException, IOException {
         String key = RandomKeyGenerated.randomString();
         String email = loginKeyField.getText();
-        if (checkEmail(email)){
-            String titleAlert = "Login Alert";
-            String contentAlert = "Email already exists on the system. Please enter your key";
-            InitAlertWindow.initAlert(titleAlert, contentAlert);
-        } else{
-            while (checkKey(key)){
-                key = RandomKeyGenerated.randomString();
-            }
-                SendKeyToMail.send(email,key);
-                KeyData newKey = new KeyData(key,email);
+        VadidateEmail emailValid = new VadidateEmail();
+        if (emailValid.validate(email)) {
+            if (checkEmail(email)) {
+                String titleAlert = "Login Alert";
+                String contentAlert = "Email already exists on the system. Please enter your key";
+                InitAlertWindow.initAlert(titleAlert, contentAlert);
+            } else {
+                while (checkKey(key)) {
+                    key = RandomKeyGenerated.randomString();
+                }
+                SendKeyToMail.send(email, key);
+                KeyData newKey = new KeyData(key, email);
                 listKeyAndMail.add(newKey);
                 String jsonString = JacksonParser.INSTANCE.toJson(listKeyAndMail);
                 WriteJson.setJsonFile(jsonString);
@@ -83,7 +86,12 @@ public class LoginController implements Initializable {
                 String contentAlert = "Please check your email and get your key";
                 InitAlertWindow.initAlert(titleAlert, contentAlert);
             }
+        } else {
+            String titleAlert = "Player alert";
+            String contentAlert = "Invalid email";
+            InitAlertWindow.initAlert(titleAlert, contentAlert);
         }
+    }
 
 
     public void showHome(ActionEvent event) throws IOException {
@@ -96,22 +104,22 @@ public class LoginController implements Initializable {
         stage.show();
     }
 
-  public boolean checkKey(String key){
-        for (int i = 0; i < listKeyAndMail.size() ; i++) {
-         if (listKeyAndMail.get(i).getKey().equals(key)){
-             return true;
-         }
+    public boolean checkKey(String key) {
+        for (int i = 0; i < listKeyAndMail.size(); i++) {
+            if (listKeyAndMail.get(i).getKey().equals(key)) {
+                return true;
+            }
         }
         return false;
     }
 
-  public boolean checkEmail(String email){
-      for (int i = 0; i < listKeyAndMail.size(); i++) {
-          if (listKeyAndMail.get(i).getEmail().equals(email)){
-              return true;
-          }
-      }
-      return false;
-  }
+    public boolean checkEmail(String email) {
+        for (int i = 0; i < listKeyAndMail.size(); i++) {
+            if (listKeyAndMail.get(i).getEmail().equals(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
